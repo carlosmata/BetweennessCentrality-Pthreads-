@@ -33,9 +33,14 @@ Graph::Graph(int numberNodes) {
 
 Graph::~Graph() {
 }
-
-
 /**
+	Get the number of nodes
+*/
+int Graph::getNumberNodes() {
+	return this->numberNodes;
+}
+/**
+	--FILE--
 	Add all the edges from a dataset
 */
 bool Graph::addEdges(string filename) {
@@ -51,9 +56,9 @@ bool Graph::addEdges(string filename) {
 	vector<int> edges;
 
 	//Iterators
-	vector<int>::iterator it_edges;//v.begin() + index
-	vector<int>::iterator it_endpoints;//v.begin() + index;
-	vector<float>::iterator it_costs; //v.begin() + index;
+	vector<int>::iterator it_edges;
+	vector<int>::iterator it_endpoints;
+	vector<float>::iterator it_costs;
 
 
 	if (dataset.is_open()) {
@@ -135,17 +140,8 @@ bool Graph::addEdges(string filename) {
 
 	return true;
 }
-
-
-
 /**
-	Get the number of nodes
-*/
-int Graph::getNumberNodes() {
-	return this->numberNodes;
-}
-
-/**
+	--FILE--
 	Get the numbers of nodes of the data set
 */
 int Graph::readNumberOfNodes(string filename) {
@@ -188,16 +184,10 @@ int Graph::readNumberOfNodes(string filename) {
 
 	return numbersOfNode;
 }
-
 /**
 	Compute the centrality of all nodes in the Graph
 */
 void Graph::computeCentrality() {
-	//Reset the centrality existent
-	for (int nodo_i = 0; nodo_i < this->numberNodes; nodo_i++) {
-		this->resetCentrality(nodo_i);
-	}
-
 	//Compute the new centrality
 	for (int nodo_i = 0; nodo_i < this->numberNodes; nodo_i++) {
 		this->dijkstra(nodo_i);
@@ -243,7 +233,6 @@ void Graph::dijkstra(int source) {
 	}
 
 }
-
 /**
    Compute the centrality of a path from a source and a tail
 */
@@ -261,7 +250,6 @@ void Graph::computeCentralityPath(int source, int tail, int n_shortest_path) {
 		}
 	}
 }
-
 /**
 	Get the node's small distance in the graph
 */
@@ -277,7 +265,6 @@ int Graph::getSmallDistance() {
 
 	return smallDistance;
 }
-
 /**
    Print the centrality of the nodes in the graph
 */
@@ -291,16 +278,6 @@ void Graph::printCentrality() {
 
 //-----------------------Node---------------------------------------------------------------
 
-
-/**
-	Add an edge from this node and other node whit a cost
-*/
-void Graph::addEdge(int source, int endpoint, int cost) {
-	//Add a new edge to the graph
-	//if(nodeI < this->numberNodes && nodeJ < this->numberNodes){
-		//Agregar valores a arreglos de relaciones
-	//}
-}
 /**
 	Reset the values to compute the centrality
 */
@@ -387,7 +364,6 @@ vector<float> Graph::getEdgesCost(int source) {
 
 	return cost;
 }
-
 /**
 	Get the edges tail of the node
 */
@@ -404,14 +380,15 @@ vector<int> Graph::getEdgesEdpoints(int source) {
 	}
 
 	return endpoints;
-
 }
-
-
+/**
+	Get the next index to obtain the edges of a node
+*/
 int Graph::getNextIndex(int source) {
 
 	for (int i = source + 1; i < this->numberNodes; i++) {
-		if (this->indexs[i] > this->indexs[source] && this->indexs[i] < (int)this->edges_tail.size()) {
+		if (this->indexs[i] > this->indexs[source] && 
+			this->indexs[i] < (int)this->edges_tail.size()) {
 			return this->indexs[i];
 		}
 	}

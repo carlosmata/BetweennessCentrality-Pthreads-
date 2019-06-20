@@ -16,14 +16,34 @@ class Graph
         virtual ~Graph();
 
         //Graph
-        //void addEdge(int nodeI, int nodeJ, int cost);
-        bool addEdges(string filename);
         int getNumberNodes();
         void computeCentrality();
         void printCentrality();
 
+    protected:
+
+    private:
+        int numberNodes;
+
+        //CSC (compress sparce column)
+        vector<float> edges_cost;
+        vector<int> edges_tail;
+        vector<int> indexs;
+
+        //To centrality
+        vector<float> centrality;
+        vector<bool> visited;
+        vector<int> distance;
+        vector<vector<int>> parents;
+
+        //Graph
+        bool addEdges(string filename);
+        void dijkstra(int source);
+        int readNumberOfNodes(string filename);
+        int getSmallDistance();
+        void computeCentralityPath(int source, int tail, int n_shortest_path);
+
         //Node
-        void addEdge(int source, int endpoint, int cost);
         void resetValues(int source);
         vector<float> getEdgesCost(int source);
         vector<int> getEdgesEdpoints(int source);
@@ -38,31 +58,6 @@ class Graph
         void setParent(int source, int parent);
         void addParent(int source, int parent);
         vector<int> getParents(int source);
-
-        //Edge
-        int getEndpoint(int source, int offset);
-        float getCost(int source, int offset);
-
-    protected:
-
-    private:
-        int numberNodes;
-
-        vector<float> edges_cost;
-        vector<int> edges_tail;
-        vector<int> indexs;
-
-        //To centrality
-        vector<float> centrality;
-        vector<bool> visited;
-        vector<int> distance;
-        vector<vector<int>> parents;
-
-        void dijkstra(int source);
-        int readNumberOfNodes(string filename);
-        int getSmallDistance();
-        void computeCentralityPath(int source, int tail, int n_shortest_path);
-
 };
 
 #endif // GRAPH_H
