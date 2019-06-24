@@ -7,7 +7,10 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    string filename = "datasets/soc-epinions.txt";
+    string filename = "datasets/CA-GrQc.txt";
+    if(argc > 1){
+    	filename = argv[1];
+    }
     Graph *g = new Graph(filename);
 
     if(g->getNumberNodes() > 0)

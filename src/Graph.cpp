@@ -7,11 +7,6 @@ Graph::Graph(string filename) {
 	for (int i = 0; i < numberNodes; i++) {
 		this->indexs.push_back(-1);
 		this->centrality.push_back(0.0);
-		this->visited.push_back(false);
-		this->distance.push_back(0);
-
-		vector<int> p;
-		this->parents.push_back(p);
 	}
 	//create the nodes
 	this->addEdges(filename);
@@ -23,11 +18,6 @@ Graph::Graph(int numberNodes) {
 	for (int i = 0; i < numberNodes; i++) {
 		this->indexs.push_back(0);
 		this->centrality.push_back(0.0);
-		this->visited.push_back(false);
-		this->distance.push_back(0);
-
-		vector<int> p;
-		this->parents.push_back(p);
 	}
 }
 
@@ -191,9 +181,6 @@ void Graph::computeCentrality() {
 	//Compute the new centrality
 	for (int nodo_i = 0; nodo_i < this->numberNodes; nodo_i++) {
 		this->dijkstra(nodo_i);
-		for (int nodo_j = 0; nodo_j < this->numberNodes; nodo_j++) {
-			this->computeCentralityPath(nodo_i, nodo_j, this->getParents(nodo_j).size());
-		}
 	}
 }
 /**
@@ -203,62 +190,68 @@ void Graph::dijkstra(int source) {
 	int cost = 0, totalcost = 0;
 	int node = 0, endpoint = 0;
 
-	//First reset the values parent, distance, and visited
-	for (int node_i = 0; node_i < this->numberNodes; node_i++) {
-		this->resetValues(node_i);
-	}
-	this->setDistance(source, 0);
+	vector<bool> visited(this->numberNodes, false);
+	vector<int> distance(this->numberNodes, this->INFINITY);
+	vector<int> parents[this->numberNodes];
+
+	distance[source] = 0;
 
 	//Iterate in the node
-	while ((node = this->getSmallDistance()) != -1) {
+	while ((node = this->getSmallDistance(visited, distance)) != -1) {
 		vector<int> endpoints = this->getEdgesEdpoints(node);
 		vector<float> costs = this->getEdgesCost(node);
 
 		for (unsigned int i = 0; i < endpoints.size(); i++) {
 			endpoint = endpoints[i];
 
-			if (endpoint != -1 && !this->isVisited(endpoint)) {
+			if (endpoint != -1 && !visited[endpoint]) {
 				cost = costs[i];
-				totalcost = cost + this->getDistance(node);
-				if (totalcost < this->getDistance(endpoint)) { //Add only one path
-					this->setDistance(endpoint, totalcost);
-					this->setParent(endpoint, node);
+				totalcost = cost + distance[node];
+				if (totalcost < distance[endpoint]) { //Add only one path
+					distance[endpoint] = totalcost;
+					parents[endpoint].clear();
+					parents[endpoint].push_back(node);
 				}
-				else if (totalcost == this->getDistance(endpoint)) { //Add other shortest path
-					this->addParent(endpoint, node);
+				else if (totalcost == distance[endpoint]) { //Add other shortest path
+					parents[endpoint].push_back(node);
 				}
 			}
 		}
-		this->setVisited(node, true);
+		visited[node]= true;
+	}
+
+	float incremento;
+	for (int nodo_j = 0; nodo_j < this->numberNodes; nodo_j++) {
+		incremento = 1.0 / parents[nodo_j].size();
+		this->computeCentralityPath(source, nodo_j, incremento, parents);
 	}
 
 }
 /**
    Compute the centrality of a path from a source and a tail
 */
-void Graph::computeCentralityPath(int source, int tail, int n_shortest_path) {
-	int parent = 0;
+void Graph::computeCentralityPath(int source, int tail, float incremento, vector<int> parents[]) {
+	int parent;
 
 	if (tail != source) {
-		for (unsigned int i = 0; i < this->getParents(tail).size(); i++) {
-			parent = this->getParents(tail)[i];
+		for (unsigned int i = 0; i < parents[tail].size(); i++) {
+			parent = parents[tail][i];
 			if (parent != source) {
-				float incremento = 1.0 / n_shortest_path;
 				this->incrementCentrality(parent, incremento);
 			}
-			this->computeCentralityPath(source, parent, n_shortest_path); //* tail->getParents().size() ??
+			this->computeCentralityPath(source, parent, incremento, parents); //* tail->getParents().size() ??
 		}
 	}
 }
 /**
 	Get the node's small distance in the graph
 */
-int Graph::getSmallDistance() {
+int Graph::getSmallDistance(vector<bool> visited, vector<int> distance) {
 	int smallDistance = -1;
-	int mini = std::numeric_limits<int>::max();
+	int mini = this->INFINITY;
 	for (int node_i = 0; node_i < this->numberNodes; node_i++) {
-		if (!this->isVisited(node_i) && this->getDistance(node_i) < mini) {
-			mini = this->getDistance(node_i);
+		if (!visited[node_i] && distance[node_i] < mini) {
+			mini = distance[node_i];
 			smallDistance = node_i;
 		}
 	}
@@ -278,14 +271,7 @@ void Graph::printCentrality() {
 
 //-----------------------Node---------------------------------------------------------------
 
-/**
-	Reset the values to compute the centrality
-*/
-void Graph::resetValues(int source) {
-	this->distance[source] = std::numeric_limits<int>::max();
-	this->parents[source].clear();
-	this->visited[source] = false;
-}
+
 /**
 	reset the centrality
 */
@@ -303,49 +289,6 @@ void Graph::incrementCentrality(int source, float increment) {
 */
 float Graph::getCentrality(int source) {
 	return this->centrality[source];
-}
-/**
-	Set the value to visited
-*/
-void Graph::setVisited(int source, bool visited) {
-	this->visited[source] = visited;
-}
-/**
-	Get if the node is visited
-*/
-bool Graph::isVisited(int source) {
-	return this->visited[source];
-}
-/**
-	Set a distance in the node
-*/
-void Graph::setDistance(int source, int distance) {
-	this->distance[source] = distance;
-}
-/**
-	Get the distance in the node
-*/
-int Graph::getDistance(int source) {
-	return this->distance[source];
-}
-/**
-	Set only one parent to the shortest path
-*/
-void Graph::setParent(int source, int parent) {
-	this->parents[source].clear();
-	this->parents[source].push_back(parent);
-}
-/**
-	Set one parent to the shortest path
-*/
-void Graph::addParent(int source, int parent) {
-	this->parents[source].push_back(parent);
-}
-/**
-	Get the parent to the shortest path
-*/
-vector<int> Graph::getParents(int source) {
-	return this->parents[source];
 }
 /**
 	Get the edges cost of the node
