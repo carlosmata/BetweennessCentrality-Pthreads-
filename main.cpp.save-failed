@@ -1,0 +1,124 @@
+#include <iostream>
+#include "Graph.h"
+#include <bits/stdc++.h>
+#include <chrono>
+#include <pthread.h>
+
+using namespace std;
+/**
+    Arguments to the threads
+*/
+struct thread_args {
+    int offset;
+    Graph *graph;
+};
+
+int main(int argc, char **argv)
+{
+    string filename = "datasets/CA-GrQc.txt";
+    if(argc > 1){
+    	filename = argv[1];
+    }
+    Graph *g = new Graph(filename);
+
+    if(g->getNumberNodes() > 0)
+    {
+        auto start = chrono::high_resolution_clock::now();
+        ios_base::sync_with_stdio(false);
+
+        cout << "Number of Nodes: " << g->getNumberNodes() << endl;
+        g->computeCentrality();
+        cout << "Centrality: " << endl;
+
+        auto end = chrono::high_resolution_clock::now();
+        g->printCentrality();
+        // Calculating total time taken by the program.
+        double time_taken = chrono::duration_cast<chrono::nanoseconds>(end - start).count();
+
+        time_taken *= 1e-9;
+
+        cout << "Time taken by program is : " << fixed
+             << time_taken << setprecision(9);
+        cout << " sec" << endl;
+
+    }
+    else
+        cout << "Data null in the dataset";
+
+    delete g;
+}
+
+void *computeCentrality_Thread(void *arg){
+	struct thread_args *args = (struct thread_args *) arg;
+    int start, end;
+    int offset = args->offset;
+    Graph *g = args->graph;
+
+    start = offset * g->threadLen;
+    end   = start + g->threadLen;
+
+    //Compute the new centrality
+	for (int nodo_i = start; nodo_i < end; nodo_i++) {
+		g->dijkstra(nodo_i);
+	}
+
+	pthread_exit((void*) 0);
+}
+
+
+/**
+void *computeCentrality_Thread(void *arg){
+    int start, end;
+    int offset = (int)arg;
+
+    start = offset * this->threadLen;
+    end   = start + this->threadLen;
+
+    //Compute the new centrality
+	for (int nodo_i = start; nodo_i < end; nodo_i++) {
+		this->dijkstra(nodo_i);
+	}
+
+	pthread_exit((void*) 0);
+}
+**/
+
+/**
+void Graph::freePthread(){
+    pthread_mutex_destroy(&(this->mutexsum));
+    pthread_exit(NULL);
+}
+**/
+/**
+void Graph::computeCentrality() {
+
+    //Compute the new centrality
+	for (int nodo_i = start; nodo_i < end; nodo_i++) {
+		this->dijkstra(nodo_i);
+	}
+
+    void *status;
+    pthread_attr_t attr;
+    pthread_t threads[ NUMBERTHREADS ];
+
+    this->threadLen = this->numberNodes / NUMBERTHREADS;
+
+    pthread_mutex_init(&(this->mutexcentrality), NULL);
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+    //Create the threads
+    for(int i = 0; i < NUMBERTHREADS ; i++)
+    {
+        pthread_create(&threads[i], &attr, this->computeCentrality_Thread, (void *)i);
+    }
+
+    //Join the threads
+    pthread_attr_destroy(&attr);
+    for(i = 0 ; i < NUMBERTHREADS ; i++) {
+        pthread_join(threads[i], &status);
+    }
+
+}
+
+*/

@@ -115,18 +115,20 @@
 1561334932 source:c:\users\champ\google drive\cinvestav\cuatrimestre 3\paralelismo\project\betweennesscentrality-pthreads-\src\graph.cpp
 	"Graph.h"
 
-1561398050 source:c:\users\carlos\google drive\cinvestav\cuatrimestre 3\paralelismo\project\betweennesscentrality-pthreads-\main.cpp
+1561688474 source:c:\users\carlos\google drive\cinvestav\cuatrimestre 3\paralelismo\project\betweennesscentrality-pthreads-\main.cpp
 	<iostream>
 	"Graph.h"
 	<bits/stdc++.h>
 	<chrono>
+	<pthread.h>
 
-1561397885 c:\users\carlos\google drive\cinvestav\cuatrimestre 3\paralelismo\project\betweennesscentrality-pthreads-\include\graph.h
+1561688032 c:\users\carlos\google drive\cinvestav\cuatrimestre 3\paralelismo\project\betweennesscentrality-pthreads-\include\graph.h
+	<pthread.h>
 	<fstream>
 	<iostream>
 	<limits>
 	<vector>
 
-1561397985 source:c:\users\carlos\google drive\cinvestav\cuatrimestre 3\paralelismo\project\betweennesscentrality-pthreads-\src\graph.cpp
+1561688391 source:c:\users\carlos\google drive\cinvestav\cuatrimestre 3\paralelismo\project\betweennesscentrality-pthreads-\src\graph.cpp
 	"Graph.h"
 

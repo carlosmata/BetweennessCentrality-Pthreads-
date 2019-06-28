@@ -1,11 +1,11 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include <pthread.h>
 #include <fstream>
 #include <iostream>
 #include <limits>
 #include <vector>
-
 using namespace std;
 
 class Graph
@@ -18,7 +18,12 @@ class Graph
         //Graph
         int getNumberNodes();
         void computeCentrality();
+        void computePartCentrality(int start, int end);
         void printCentrality();
+        void calculateThreadLen(int numberThreads);
+
+        pthread_mutex_t mutexcentrality;
+        int threadLen;
 
     protected:
 
@@ -36,10 +41,10 @@ class Graph
 
         //Graph
         bool addEdges(string filename);
-        void dijkstra(int source);
         int readNumberOfNodes(string filename);
         int getSmallDistance(vector<bool> visited, vector<int> distance);
         void computeCentralityPath(int source, int tail, float incremento, vector<int> parents[]);
+        void dijkstra(int source);
 
         //Node
         vector<float> getEdgesCost(int source);
